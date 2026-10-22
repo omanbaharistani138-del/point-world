@@ -1,0 +1,302 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101426">
+  <title>POINT WORLD</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #101426;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    }
+    .app { max-width: 520px; margin: auto; padding: 18px; }
+    header { display: flex; align-items: center; justify-content: space-between; }
+    header h1 { font-size: 22px; color: #ffd166; margin: 8px 0; }
+    .tag { color: #aab2ce; font-size: 12px; }
+    .card {
+      background: #1b2239;
+      border: 1px solid #303a5a;
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 15px;
+    }
+    .balance { text-align: center; padding: 25px 15px; }
+    .coin { font-size: 48px; }
+    .amount { font-size: 36px; font-weight: 800; color: #ffd166; margin: 8px 0; }
+    .muted { color: #aab2ce; font-size: 13px; line-height: 1.8; }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 13px 15px;
+      width: 100%;
+      background: #ffd166;
+      color: #202033;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button.secondary { background: #303a5a; color: white; }
+    button:disabled { opacity: .45; cursor: default; }
+    .section-title { font-size: 17px; margin: 0 0 10px; }
+    .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .row button { width: auto; min-width: 100px; margin: 0; }
+    .task, .player {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; padding: 12px 0; border-bottom: 1px solid #303a5a;
+    }
+    .task:last-child, .player:last-child { border-bottom: 0; }
+    .task-info { flex: 1; }
+    .task-name { font-size: 14px; font-weight: 700; }
+    .reward { color: #ffd166; font-size: 12px; margin-top: 5px; }
+    .task button { width: 94px; padding: 10px 6px; font-size: 12px; margin: 0; }
+    .nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-top: 16px; }
+    .nav button { background: #1b2239; color: #c8d0ea; font-size: 12px; padding: 12px 3px; }
+    .nav button.active { background: #ffd166; color: #202033; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .notice { margin-top: 12px; font-size: 12px; color: #aab2ce; line-height: 1.8; }
+    .progress { background: #303a5a; height: 8px; border-radius: 20px; overflow: hidden; margin-top: 12px; }
+    .progress div { height: 100%; width: 0%; background: #ffd166; }
+    input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #303a5a; background: #101426; color: white; }
+    footer { text-align: center; padding: 20px 0; color: #737e9e; font-size: 11px; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>🌍 POINT WORLD</h1>
+      <div class="tag">بازی امتیازگیری بدون کلیک روی سکه</div>
+    </div>
+    <div style="font-size:28px">⭐</div>
+  </header>
+
+  <div class="card balance">
+    <div class="coin">🪙</div>
+    <div class="muted">موجودی امتیاز شما</div>
+    <div class="amount" id="balance">0 PT</div>
+    <div class="muted" id="hourInfo">امتیاز ساعتی در حال محاسبه است</div>
+    <div class="progress"><div id="progress"></div></div>
+    <button id="claimHourly" onclick="claimHourly()">دریافت امتیاز ساعتی</button>
+    <div class="notice">هر ساعت ۱۰ امتیاز جمع می‌شود. برای دریافت آن دکمه را بزن.</div>
+  </div>
+
+  <div class="nav">
+    <button class="active" onclick="showPage('home',this)">🏠 خانه</button>
+    <button onclick="showPage('tasks',this)">📋 وظایف</button>
+    <button onclick="showPage('invite',this)">👥 دعوت</button>
+    <button onclick="showPage('rank',this)">🏆 رتبه‌ها</button>
+  </div>
+
+  <section id="home" class="page active">
+    <div class="card">
+      <h2 class="section-title">🎁 جایزهٔ روزانه</h2>
+      <div class="muted">هر روز یک بار جایزه بگیر.</div>
+      <div class="row" style="margin-top:12px">
+        <span style="color:#ffd166;font-weight:800">+100 PT</span>
+        <button id="dailyButton" onclick="claimDaily()">گرفتن جایزه</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2 class="section-title">👤 حساب شما</h2>
+      <div class="row"><span class="muted">نام</span><strong id="playerName">بازیکن</strong></div>
+      <div class="row" style="margin-top:12px"><span class="muted">شناسه تلگرام</span><span id="playerId">در دسترس نیست</span></div>
+      <div class="notice">امتیازهای این نسخه فقط روی همین مرورگر ذخیره می‌شوند.</div>
+    </div>
+  </section>
+
+  <section id="tasks" class="page">
+    <div class="card">
+      <h2 class="section-title">📋 وظایف روزانه</h2>
+      <p class="muted">این وظایف فعلاً آزمایشی هستند. تکمیل آن‌ها در این نسخه به‌صورت واقعی تأیید نمی‌شود.</p>
+      <div class="task">
+        <div class="task-info"><div class="task-name">🎮 ورود به بازی</div><div class="reward">جایزه: 20 PT</div></div>
+        <button id="task1" onclick="completeTask('task1',20)">دریافت</button>
+      </div>
+      <div class="task">
+        <div class="task-info"><div class="task-name">📅 بازدید روزانه</div><div class="reward">جایزه: 30 PT</div></div>
+        <button id="task2" onclick="completeTask('task2',30)">دریافت</button>
+      </div>
+      <div class="task">
+        <div class="task-info"><div class="task-name">🌟 دیدن بخش معرفی</div><div class="reward">جایزه: 25 PT</div></div>
+        <button id="task3" onclick="completeTask('task3',25)">دریافت</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="invite" class="page">
+    <div class="card">
+      <h2 class="section-title">👥 دعوت دوستان</h2>
+      <div class="muted">لینک بازی را برای دوستانت بفرست.</div>
+      <div style="margin-top:14px">
+        <input id="inviteLink" readonly placeholder="ابتدا نام کاربری ربات را تنظیم کن">
+      </div>
+      <button onclick="copyInvite()">کاپی لینک دعوت</button>
+      <button class="secondary" onclick="shareInvite()">اشتراک‌گذاری در تلگرام</button>
+      <div class="notice">در این نسخه دعوت‌ها تأیید نمی‌شوند و برای دعوت، امتیاز خودکار داده نمی‌شود.</div>
+    </div>
+  </section>
+
+  <section id="rank" class="page">
+    <div class="card">
+      <h2 class="section-title">🏆 جدول رتبه‌بندی</h2>
+      <div class="muted">نمونهٔ نمایشی — هنوز به سرور وصل نیست.</div>
+      <div class="player"><span>🥇 1. ستاره</span><strong>5,200 PT</strong></div>
+      <div class="player"><span>🥈 2. قهرمان</span><strong>3,800 PT</strong></div>
+      <div class="player"><span>🥉 3. بازیکن طلایی</span><strong>2,450 PT</strong></div>
+      <div class="player"><span>👤 شما</span><strong id="rankBalance">0 PT</strong></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card">
+      <h2 class="section-title">🔐 اتصال کیف پول</h2>
+      <div class="muted">این بخش برای آینده است. در حال حاضر کیف پولی وصل نمی‌شود و برداشت واقعی وجود ندارد.</div>
+      <button class="secondary" onclick="alert('اتصال کیف پول هنوز فعال نشده است.')">به‌زودی</button>
+    </div>
+  </section>
+
+  <footer>POINT WORLD · نسخهٔ آزمایشی</footer>
+</div>
+
+<script>
+  // نام کاربری ربات را بدون @ اینجا بنویس؛ مثال: MyPointWorldBot
+  const BOT_USERNAME = "";
+
+  const tg = window.Telegram && window.Telegram.WebApp
+    ? window.Telegram.WebApp : null;
+
+  if (tg) {
+    tg.ready();
+    tg.expand();
+  }
+
+  const get = key => localStorage.getItem("pw_" + key);
+  const set = (key, value) => localStorage.setItem("pw_" + key, String(value));
+
+  let balance = Number(get("balance") || 0);
+  let lastHourly = Number(get("lastHourly") || Date.now());
+  let lastDaily = get("lastDaily") || "";
+  let completed = JSON.parse(get("completed") || "[]");
+
+  const user = tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : null;
+  const userId = user && user.id ? user.id : null;
+  const firstName = user && user.first_name ? user.first_name : "بازیکن";
+
+  document.getElementById("playerName").textContent = firstName;
+  document.getElementById("playerId").textContent = userId || "در دسترس نیست";
+
+  function save() {
+    set("balance", balance);
+    set("lastHourly", lastHourly);
+    set("lastDaily", lastDaily);
+    set("completed", JSON.stringify(completed));
+    render();
+  }
+
+  function render() {
+    document.getElementById("balance").textContent = balance.toLocaleString() + " PT";
+    document.getElementById("rankBalance").textContent = balance.toLocaleString() + " PT";
+
+    const elapsed = Math.max(0, Date.now() - lastHourly);
+    const hours = Math.floor(elapsed / 3600000);
+    const minutes = Math.floor((elapsed % 3600000) / 60000);
+    const progress = Math.floor((elapsed % 3600000) / 3600000 * 100);
+
+    document.getElementById("hourInfo").textContent =
+      hours > 0 ? hours + " ساعت امتیاز آمادهٔ دریافت داری" :
+      "امتیاز بعدی در " + (59 - minutes) + " دقیقه آماده می‌شود";
+
+    document.getElementById("progress").style.width = progress + "%";
+    document.getElementById("claimHourly").disabled = hours < 1;
+
+    const today = new Date().toISOString().slice(0, 10);
+    document.getElementById("dailyButton").disabled = lastDaily === today;
+    document.getElementById("dailyButton").textContent =
+      lastDaily === today ? "امروز دریافت شد" : "گرفتن جایزه";
+
+    ["task1", "task2", "task3"].forEach(id => {
+      const btn = document.getElementById(id);
+      btn.disabled = completed.includes(id);
+      btn.textContent = completed.includes(id) ? "دریافت شد" : "دریافت";
+    });
+
+    const link = userId && BOT_USERNAME
+      ? "https://t.me/" + BOT_USERNAME + "?startapp=" + userId
+      : "";
+    document.getElementById("inviteLink").value = link;
+  }
+
+  function claimHourly() {
+    const hours = Math.floor((Date.now() - lastHourly) / 3600000);
+    if (hours < 1) return;
+    balance += hours * 10;
+    lastHourly += hours * 3600000;
+    save();
+    alert((hours * 10) + " امتیاز گرفتی!");
+  }
+
+  function claimDaily() {
+    const today = new Date().toISOString().slice(0, 10);
+    if (lastDaily === today) return;
+    balance += 100;
+    lastDaily = today;
+    save();
+    alert("جایزهٔ روزانهٔ ۱۰۰ امتیازی دریافت شد!");
+  }
+
+  function completeTask(id, points) {
+    if (completed.includes(id)) return;
+    completed.push(id);
+    balance += points;
+    save();
+    alert(points + " امتیاز آزمایشی دریافت شد!");
+  }
+
+  function showPage(id, button) {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+    button.classList.add("active");
+  }
+
+  async function copyInvite() {
+    const link = document.getElementById("inviteLink").value;
+    if (!link) {
+      alert("ابتدا نام کاربری ربات را در کد تنظیم کن و بازی را داخل تلگرام باز کن.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(link);
+      alert("لینک کاپی شد!");
+    } catch (e) {
+      document.getElementById("inviteLink").select();
+      alert("لینک را انتخاب کن و Copy را بزن.");
+    }
+  }
+
+  function shareInvite() {
+    const link = document.getElementById("inviteLink").value;
+    if (!link) {
+      alert("ابتدا نام کاربری ربات را در کد تنظیم کن.");
+      return;
+    }
+    const shareUrl = "https://t.me/share/url?url=" +
+      encodeURIComponent(link) + "&text=" +
+      encodeURIComponent("بیا POINT WORLD را امتحان کن!");
+    if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl);
+    else window.open(shareUrl, "_blank");
+  }
+
+  render();
+  setInterval(render, 60000);
+</script>
+</body>
+</html>
