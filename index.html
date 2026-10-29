@@ -170,7 +170,7 @@
   const get = key => localStorage.getItem("pw_" + key); : MyPointWorldBot
   const BOT_USERNAME = "";
 const SUPABASE_URL = "https://wnvjdbdsbfnrnujywebt.supabase.co";
-const SUPABASE_KEY ='sb_publishable_FWvovAJQZM_NzLGzxkdWHQ_9JGR4lZH';
+const SUPABASE_KEY = "sb_publishable_FWvovAJQZM_NzLGzxkdWHQ_9JGR4lZH";
 
 async function verifyTelegramSession() {
   if (!tg || !tg.initData) {
@@ -200,7 +200,7 @@ async function verifyTelegramSession() {
   }
 }
 
-verifyTelegramSession();
+
   const tg = window.Telegram && window.Telegram.WebApp
     ? window.Telegram.WebApp : null;
 
@@ -220,7 +220,7 @@ verifyTelegramSession();
   const user = tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : null;
   const userId = user && user.id ? user.id : null;
   const firstName = user && user.first_name ? user.first_name : "بازیکن";
-
+  verifyTelegramSession();
   document.getElementById("playerName").textContent = firstName;
   document.getElementById("playerId").textContent = userId || "در دسترس نیست";
 
