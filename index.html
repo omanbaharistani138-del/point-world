@@ -13,8 +13,8 @@
     tg.expand();
   }
 
- 
-  const set = (key, value) =>
+ const get = key => localStorage.getItem("pw_" + key);
+  
     localStorage.setItem("pw_" + key, String(value));
 
   let balance = Number(get("balance") || 0);
